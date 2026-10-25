@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>가계부</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --income: #10b981;
+      --expense: #ef4444;
+      --primary: #2563eb;
+      --shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 32px auto;
+      padding: 0 16px 40px;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 2rem;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+    }
+
+    .card .label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .income .value { color: var(--income); }
+    .expense .value { color: var(--expense); }
+    .balance .value { color: var(--primary); }
+
+    .content {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin: 0 0 16px;
+      font-size: 1.2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 1rem;
+      background: white;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.15);
+      border-color: var(--primary);
+    }
+
+    .type-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .type-row button {
+      flex: 1;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .type-row button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .submit-btn {
+      margin-top: 6px;
+      border: none;
+      border-radius: 10px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .submit-btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 620px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+
+    tbody tr:hover {
+      background: #fafcff;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .tag.income {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--income);
+    }
+
+    .tag.expense {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--expense);
+    }
+
+    .amount.income { color: var(--income); font-weight: 700; }
+    .amount.expense { color: var(--expense); font-weight: 700; }
+
+    .delete-btn {
+      border: none;
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--expense);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 28px 10px;
+    }
+
+    @media (max-width: 860px) {
+      .summary { grid-template-columns: 1fr; }
+      .content { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>가계부</h1>
+
+    <div class="summary">
+      <div class="card income">
+        <div class="label">수입</div>
+        <div class="value" id="incomeTotal">0원</div>
+      </div>
+      <div class="card expense">
+        <div class="label">지출</div>
+        <div class="value" id="expenseTotal">0원</div>
+      </div>
+      <div class="card balance">
+        <div class="label">잔액</div>
+        <div class="value" id="balanceTotal">0원</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="panel">
+        <h2>내역 추가</h2>
+
+        <form id="ledgerForm" class="form-grid">
+          <div class="field">
+            <label for="date">날짜</label>
+            <input type="date" id="date" required />
+          </div>
+
+          <div class="field">
+            <label>유형</label>
+            <div class="type-row">
+              <button type="button" class="type-btn active" data-type="income">수입</button>
+              <button type="button" class="type-btn" data-type="expense">지출</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="category">분류</label>
+            <select id="category" required>
+              <option value="급여">급여</option>
+              <option value="부업">부업</option>
+              <option value="식비">식비</option>
+              <option value="교통">교통</option>
+              <option value="주거">주거</option>
+              <option value="쇼핑">쇼핑</option>
+              <option value="통신">통신</option>
+              <option value="의료">의료</option>
+              <option value="교육">교육</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="amount">금액</label>
+            <input type="number" id="amount" min="1" step="100" placeholder="예: 50000" required />
+          </div>
+
+          <div class="field">
+            <label for="memo">메모</label>
+            <input type="text" id="memo" maxlength="50" placeholder="예: 점심 식사" />
+          </div>
+
+          <button type="submit" class="submit-btn">추가하기</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <h2>거래 내역</h2>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>유형</th>
+                <th>분류</th>
+                <th>메모</th>
+                <th>금액</th>
+                <th>삭제</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ledger_entries_v1";
+    const form = document.getElementById("ledgerForm");
+    const typeButtons = document.querySelectorAll(".type-btn");
+    const tableBody = document.getElementById("ledgerTableBody");
+    const dateInput = document.getElementById("date");
+    const categoryInput = document.getElementById("category");
+    const amountInput = document.getElementById("amount");
+    const memoInput = document.getElementById("memo");
+
+    let selectedType = "income";
+
+    dateInput.value = new Date().toISOString().slice(0, 10);
+
+    typeButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        selectedType = button.dataset.type;
+        typeButtons.forEach(btn => btn.classList.toggle("active", btn === button));
+        // 수입/지출에 따라 기본 카테고리 추천
+        if (selectedType === "income") {
+          categoryInput.value = "급여";
+        } else {
+          categoryInput.value = "식비";
+        }
+      });
+    });
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat("ko-KR", {
+        style: "currency",
+        currency: "KRW",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function loadEntries() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return [];
+      }
+    }
+
+    function saveEntries(entries) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function getEntries() {
+      return loadEntries().sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
+    function renderSummary(entries) {
+      const income = entries
+        .filter(item => item.type === "income")
+        .reduce((sum, item) => sum + Number(item.amount), 0);
+
+      const expense = entries
+        .filter(item => item.type === "expense")
+        .reduce((sum, item) => sum + Number(item.amount), 0);
+
+      const balance = income - expense;
+
+      document.getElementById("incomeTotal").textContent = formatCurrency(income);
+      document.getElementById("expenseTotal").textContent = formatCurrency(expense);
+      document.getElementById("balanceTotal").textContent = formatCurrency(balance);
+    }
+
+    function renderTable() {
+      const entries = getEntries();
+      tableBody.innerHTML = "";
+
+      if (!entries.length) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="empty">아직 저장된 내역이 없습니다.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      entries.forEach(entry => {
+        const row = document.createElement("tr");
+
+        const typeClass = entry.type === "income" ? "income" : "expense";
+        const sign = entry.type === "income" ? "+" : "-";
+
+        row.innerHTML = `
+          <td>${entry.date}</td>
+          <td><span class="tag ${typeClass}">${entry.type === "income" ? "수입" : "지출"}</span></td>
+          <td>${entry.category}</td>
+          <td>${entry.memo || "-"}</td>
+          <td class="amount ${typeClass}">${sign}${formatCurrency(Number(entry.amount))}</td>
+          <td><button class="delete-btn" data-id="${entry.id}">삭제</button></td>
+        `;
+
+        tableBody.appendChild(row);
+      });
+
+      document.querySelectorAll(".delete-btn").forEach(button => {
+        button.addEventListener("click", (event) => {
+          const targetId = Number(event.currentTarget.dataset.id);
+          const entries = getEntries();
+          const filtered = entries.filter(item => item.id !== targetId);
+          saveEntries(filtered);
+          render();
+        });
+      });
+    }
+
+    function render() {
+      const entries = getEntries();
+      renderSummary(entries);
+      renderTable();
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const date = dateInput.value;
+      const amount = Number(amountInput.value);
+
+      if (!date || !amount || amount <= 0) {
+        alert("날짜와 금액을 올바르게 입력해 주세요.");
+        return;
+      }
+
+      const entries = getEntries();
+
+      const newEntry = {
+        id: Date.now(),
+        date,
+        type: selectedType,
+        category: categoryInput.value,
+        amount,
+        memo: memoInput.value.trim()
+      };
+
+      entries.push(newEntry);
+      saveEntries(entries);
+      form.reset();
+      dateInput.value = new Date().toISOString().slice(0, 10);
+      selectedType = "income";
+      typeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.type === "income"));
+      categoryInput.value = "급여";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
