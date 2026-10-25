@@ -348,7 +348,10 @@
       border-radius: 12px;
       background: linear-gradient(180deg, #ffffff, #f8fbff);
       padding: 14px 16px;
-      min-height: 110px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .formula-box .formula-label {
@@ -359,14 +362,6 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       margin-bottom: 8px;
-    }
-
-    .formula-box .formula-expression {
-      display: block;
-      color: var(--primary);
-      font-weight: 700;
-      margin-bottom: 8px;
-      word-break: break-word;
     }
 
     .formula-box .formula-result {
@@ -386,7 +381,7 @@
     .spreadsheet-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 820px;
+      min-width: 760px;
     }
 
     .spreadsheet-table th,
@@ -401,13 +396,6 @@
       top: 0;
       z-index: 1;
       background: #f8fafc;
-    }
-
-    .spreadsheet-table .calc-cell {
-      color: var(--muted);
-      font-family: "SFMono-Regular", Consolas, monospace;
-      font-size: 0.83rem;
-      background: #fafcff;
     }
 
     .spreadsheet-table .total-row {
@@ -806,26 +794,10 @@
       const average = filteredEntries.length ? (income + expense) / filteredEntries.length : 0;
 
       const formulaCards = [
-        {
-          label: "총 수입",
-          expression: '=SUMIF(유형, "수입", 금액)',
-          result: formatCurrency(income)
-        },
-        {
-          label: "총 지출",
-          expression: '=SUMIF(유형, "지출", 금액)',
-          result: formatCurrency(expense)
-        },
-        {
-          label: "잔액",
-          expression: '=총수입 - 총지출',
-          result: formatCurrency(balance)
-        },
-        {
-          label: "평균 거래액",
-          expression: '=AVERAGE(금액)',
-          result: formatCurrency(average)
-        }
+        { label: "총 수입", result: formatCurrency(income) },
+        { label: "총 지출", result: formatCurrency(expense) },
+        { label: "잔액", result: formatCurrency(balance) },
+        { label: "평균 거래액", result: formatCurrency(average) }
       ];
 
       const rowsHtml = filteredEntries.length
@@ -838,19 +810,17 @@
                 <td>${entry.category}</td>
                 <td>${entry.memo || "-"}</td>
                 <td class="amount ${typeClass}">${formatCurrency(Number(entry.amount))}</td>
-                <td class="calc-cell">${entry.type === "income" ? "=계산(수입)" : "=계산(지출)"}</td>
                 <td class="amount ${typeClass}">${entry.type === "income" ? "+" : "-"}${formatCurrency(Number(entry.amount))}</td>
               </tr>
             `;
           }).join("")
-        : `<tr><td colspan="7" class="empty">선택한 연/월에 해당하는 데이터가 없습니다.</td></tr>`;
+        : `<tr><td colspan="6" class="empty">선택한 연/월에 해당하는 데이터가 없습니다.</td></tr>`;
 
       overviewContent.innerHTML = `
         <div class="formula-grid">
           ${formulaCards.map(card => `
             <div class="formula-box">
               <span class="formula-label">${card.label}</span>
-              <span class="formula-expression">${card.expression}</span>
               <span class="formula-result">${card.result}</span>
             </div>
           `).join("")}
@@ -865,7 +835,6 @@
                 <th>분류</th>
                 <th>메모</th>
                 <th>금액</th>
-                <th>수식</th>
                 <th>결과</th>
               </tr>
             </thead>
@@ -874,7 +843,6 @@
               <tr class="total-row">
                 <td colspan="4">합계</td>
                 <td>${formatCurrency(income + expense)}</td>
-                <td class="calc-cell">=SUM(금액)</td>
                 <td class="amount ${balance >= 0 ? "income" : "expense"}">${formatCurrency(balance)}</td>
               </tr>
             </tbody>
