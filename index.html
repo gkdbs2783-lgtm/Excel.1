@@ -87,6 +87,39 @@
       font-size: 1.2rem;
     }
 
+    .tab-header {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: var(--muted);
+      border-radius: 10px 10px 0 0;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
     .form-grid {
       display: grid;
       gap: 14px;
@@ -297,22 +330,42 @@
       </section>
 
       <section class="panel">
-        <h2>거래 내역</h2>
+        <div class="tab-header">
+          <button type="button" class="tab-btn active" data-tab="transactions">거래 내역</button>
+          <button type="button" class="tab-btn" data-tab="summary">정리 표</button>
+        </div>
 
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>유형</th>
-                <th>분류</th>
-                <th>메모</th>
-                <th>금액</th>
-                <th>삭제</th>
-              </tr>
-            </thead>
-            <tbody id="ledgerTableBody"></tbody>
-          </table>
+        <div id="transactionsPanel" class="tab-panel active">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>유형</th>
+                  <th>분류</th>
+                  <th>메모</th>
+                  <th>금액</th>
+                  <th>삭제</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="summaryPanel" class="tab-panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>유형</th>
+                  <th>분류</th>
+                  <th>총합</th>
+                </tr>
+              </thead>
+              <tbody id="summaryTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
     </div>
@@ -322,7 +375,9 @@
     const STORAGE_KEY = "ledger_entries_v1";
     const form = document.getElementById("ledgerForm");
     const typeButtons = document.querySelectorAll(".type-btn");
+    const tabButtons = document.querySelectorAll(".tab-btn");
     const tableBody = document.getElementById("ledgerTableBody");
+    const summaryTableBody = document.getElementById("summaryTableBody");
     const dateInput = document.getElementById("date");
     const categoryInput = document.getElementById("category");
     const amountInput = document.getElementById("amount");
@@ -336,12 +391,21 @@
       button.addEventListener("click", () => {
         selectedType = button.dataset.type;
         typeButtons.forEach(btn => btn.classList.toggle("active", btn === button));
-        // 수입/지출에 따라 기본 카테고리 추천
         if (selectedType === "income") {
           categoryInput.value = "급여";
         } else {
           categoryInput.value = "식비";
         }
+      });
+    });
+
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const targetTab = button.dataset.tab;
+
+        tabButtons.forEach(btn => btn.classList.toggle("active", btn === button));
+        document.getElementById("transactionsPanel").classList.toggle("active", targetTab === "transactions");
+        document.getElementById("summaryPanel").classList.toggle("active", targetTab === "summary");
       });
     });
 
@@ -385,6 +449,45 @@
       document.getElementById("incomeTotal").textContent = formatCurrency(income);
       document.getElementById("expenseTotal").textContent = formatCurrency(expense);
       document.getElementById("balanceTotal").textContent = formatCurrency(balance);
+    }
+
+    function renderSummaryTable(entries) {
+      const summaryMap = new Map();
+
+      entries.forEach(entry => {
+        const key = `${entry.type}:${entry.category}`;
+        if (!summaryMap.has(key)) {
+          summaryMap.set(key, { type: entry.type, category: entry.category, total: 0 });
+        }
+        summaryMap.get(key).total += Number(entry.amount);
+      });
+
+      const rows = [...summaryMap.values()].sort((a, b) => {
+        if (a.type !== b.type) return a.type === "income" ? -1 : 1;
+        return a.category.localeCompare(b.category, "ko");
+      });
+
+      summaryTableBody.innerHTML = "";
+
+      if (!rows.length) {
+        summaryTableBody.innerHTML = `
+          <tr>
+            <td colspan="3" class="empty">아직 정리된 표가 없습니다.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        const typeClass = row.type === "income" ? "income" : "expense";
+        tr.innerHTML = `
+          <td><span class="tag ${typeClass}">${row.type === "income" ? "수입" : "지출"}</span></td>
+          <td>${row.category}</td>
+          <td class="amount ${typeClass}">${row.type === "income" ? "+" : "-"}${formatCurrency(row.total)}</td>
+        `;
+        summaryTableBody.appendChild(tr);
+      });
     }
 
     function renderTable() {
@@ -432,6 +535,7 @@
     function render() {
       const entries = getEntries();
       renderSummary(entries);
+      renderSummaryTable(entries);
       renderTable();
     }
 
