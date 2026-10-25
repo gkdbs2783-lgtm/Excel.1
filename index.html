@@ -336,71 +336,95 @@
       padding: 18px;
     }
 
-    .formula-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .formula-box {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: linear-gradient(180deg, #ffffff, #f8fbff);
-      padding: 14px 16px;
-      min-height: 90px;
+    .sheet-toolbar {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .formula-box .formula-label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
+    .sheet-toolbar .left-tools,
+    .sheet-toolbar .right-tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
     }
 
-    .formula-box .formula-result {
-      display: block;
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-
-    .spreadsheet-table-wrap {
-      overflow-x: auto;
+    .sheet-grid-wrap {
+      overflow: auto;
       border: 1px solid var(--line);
       border-radius: 14px;
-      background: white;
+      background: #fff;
     }
 
-    .spreadsheet-table {
+    .sheet-grid {
       width: 100%;
       border-collapse: collapse;
-      min-width: 760px;
+      min-width: 720px;
+      table-layout: fixed;
     }
 
-    .spreadsheet-table th,
-    .spreadsheet-table td {
-      border-bottom: 1px solid var(--line);
-      padding: 12px 10px;
-      white-space: nowrap;
+    .sheet-grid th,
+    .sheet-grid td {
+      border: 1px solid var(--line);
+      padding: 0;
+      height: 44px;
+      background: #fff;
     }
 
-    .spreadsheet-table th {
-      position: sticky;
-      top: 0;
-      z-index: 1;
+    .sheet-grid th {
       background: #f8fafc;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+      width: 110px;
+      min-width: 110px;
     }
 
-    .spreadsheet-table .total-row {
-      background: #eef6ff;
-      font-weight: 800;
+    .sheet-grid td {
+      width: 110px;
+    }
+
+    .sheet-grid input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      background: transparent;
+      color: var(--text);
+      outline: none;
+    }
+
+    .sheet-grid input:focus {
+      background: #f4f8ff;
+      box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.12);
+    }
+
+    .sheet-grid .formula-cell {
+      background: #f9fbff;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .sheet-summary {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .summary-chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 12px;
     }
 
     .backup-card {
@@ -570,26 +594,9 @@
       <div class="overview-panel">
         <div class="overview-controls">
           <div class="controls-group">
-            <label for="yearFilter">연도</label>
-            <select id="yearFilter">
-              <option value="all">전체</option>
-            </select>
-            <label for="monthFilter">월</label>
-            <select id="monthFilter">
-              <option value="all">전체</option>
-              <option value="01">1월</option>
-              <option value="02">2월</option>
-              <option value="03">3월</option>
-              <option value="04">4월</option>
-              <option value="05">5월</option>
-              <option value="06">6월</option>
-              <option value="07">7월</option>
-              <option value="08">8월</option>
-              <option value="09">9월</option>
-              <option value="10">10월</option>
-              <option value="11">11월</option>
-              <option value="12">12월</option>
-            </select>
+            <button type="button" class="ghost-btn" id="sheetAddRowBtn">행 추가</button>
+            <button type="button" class="ghost-btn" id="sheetAddColBtn">열 추가</button>
+            <button type="button" class="ghost-btn" id="sheetResetBtn">초기화</button>
           </div>
           <div class="controls-group">
             <button type="button" class="ghost-btn" id="backToMainBtn">입력 화면으로</button>
@@ -610,8 +617,6 @@
     const categoryInput = document.getElementById("category");
     const amountInput = document.getElementById("amount");
     const memoInput = document.getElementById("memo");
-    const yearFilter = document.getElementById("yearFilter");
-    const monthFilter = document.getElementById("monthFilter");
     const overviewContent = document.getElementById("overviewContent");
     const backupBox = document.getElementById("backupBox");
     const backupBtn = document.getElementById("backupBtn");
@@ -622,6 +627,7 @@
     const backToMainBtn = document.getElementById("backToMainBtn");
 
     let selectedType = "income";
+    let spreadsheetState = createSheetState(6, 4);
 
     dateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -752,110 +758,247 @@
       });
     }
 
-    function buildYearSelect(entries) {
-      const years = [...new Set(entries.map(entry => new Date(entry.date + "T00:00:00").getFullYear()))].sort((a, b) => b - a);
-      const current = yearFilter.value;
-      yearFilter.innerHTML = '<option value="all">전체</option>' +
-        years.map(year => `<option value="${year}">${year}년</option>`).join("");
-      yearFilter.value = years.includes(Number(current)) ? String(current) : "all";
+    function createSheetState(rows = 6, cols = 4) {
+      return Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
     }
 
-    function getFilteredEntries(entries) {
-      const selectedYear = yearFilter.value;
-      const selectedMonth = monthFilter.value;
-
-      return entries.filter(entry => {
-        const date = new Date(entry.date + "T00:00:00");
-        const yearMatch = selectedYear === "all" || date.getFullYear() === Number(selectedYear);
-        const monthMatch = selectedMonth === "all" || String(date.getMonth() + 1).padStart(2, "0") === selectedMonth;
-        return yearMatch && monthMatch;
-      });
+    function colToLetter(col) {
+      let result = "";
+      let current = col + 1;
+      while (current > 0) {
+        const remainder = (current - 1) % 26;
+        result = String.fromCharCode(65 + remainder) + result;
+        current = Math.floor((current - 1) / 26);
+      }
+      return result;
     }
 
-    function renderOverview() {
-      const entries = getEntries();
-      buildYearSelect(entries);
-      const filteredEntries = getFilteredEntries(entries);
+    function coordToIndex(cellRef) {
+      const match = /^([A-Z]+)([0-9]+)$/i.exec(cellRef.trim());
+      if (!match) return null;
+      const col = match[1].toUpperCase();
+      const row = Number(match[2]);
+      return { row: row - 1, col: col.split("").reduce((sum, ch) => sum * 26 + (ch.charCodeAt(0) - 64), 0) - 1 };
+    }
 
-      if (!entries.length) {
-        overviewContent.innerHTML = '<div class="empty">아직 저장된 데이터가 없습니다.</div>';
-        return;
+    function getCellValue(row, col, seen = new Set()) {
+      const key = `${row}:${col}`;
+      if (seen.has(key)) return 0;
+      seen.add(key);
+
+      const raw = spreadsheetState[row]?.[col] ?? "";
+      if (raw === "") return 0;
+
+      const value = String(raw).trim();
+      if (!value.startsWith("=")) {
+        const num = Number(value.replace(/,/g, ""));
+        return Number.isFinite(num) ? num : 0;
       }
 
-      const income = filteredEntries
-        .filter(item => item.type === "income")
-        .reduce((sum, item) => sum + Number(item.amount), 0);
+      return evaluateFormula(value, row, col, seen);
+    }
 
-      const expense = filteredEntries
-        .filter(item => item.type === "expense")
-        .reduce((sum, item) => sum + Number(item.amount), 0);
+    function evaluateFormula(formula, row, col, seen) {
+      const expr = formula.slice(1).trim();
 
-      const balance = income - expense;
-      const average = filteredEntries.length ? (income + expense) / filteredEntries.length : 0;
+      const fnMatch = /^([A-Z]+)\s*\((.*)\)\s*$/i.exec(expr);
+      if (fnMatch) {
+        const fnName = fnMatch[1].toUpperCase();
+        const argsRaw = fnMatch[2];
+        const args = splitFormulaArgs(argsRaw);
 
-      const formulaCards = [
-        { label: "총 수입", result: formatCurrency(income) },
-        { label: "총 지출", result: formatCurrency(expense) },
-        { label: "잔액", result: formatCurrency(balance) },
-        { label: "평균 거래액", result: formatCurrency(average) }
-      ];
+        const values = [];
+        args.forEach(arg => {
+          const trimmed = arg.trim();
+          if (trimmed === "") return;
+          if (trimmed.includes(":")) {
+            const range = parseRange(trimmed);
+            range.forEach(cell => values.push(getCellValue(cell.row, cell.col, new Set(seen))));
+            return;
+          }
+          if (/^[A-Z]+[0-9]+$/i.test(trimmed)) {
+            const index = coordToIndex(trimmed);
+            if (index) values.push(getCellValue(index.row, index.col, new Set(seen)));
+            return;
+          }
+          const num = Number(trimmed);
+          values.push(Number.isFinite(num) ? num : 0);
+        });
 
-      const rowsHtml = filteredEntries.length
-        ? filteredEntries.map(entry => {
-            const typeClass = entry.type === "income" ? "income" : "expense";
-            return `
-              <tr>
-                <td>${entry.date}</td>
-                <td><span class="tag ${typeClass}">${entry.type === "income" ? "수입" : "지출"}</span></td>
-                <td>${entry.category}</td>
-                <td>${entry.memo || "-"}</td>
-                <td class="amount ${typeClass}">${formatCurrency(Number(entry.amount))}</td>
-                <td class="amount ${typeClass}">${entry.type === "income" ? "+" : "-"}${formatCurrency(Number(entry.amount))}</td>
-              </tr>
-            `;
-          }).join("")
-        : `<tr><td colspan="6" class="empty">선택한 연/월에 해당하는 데이터가 없습니다.</td></tr>`;
+        if (fnName === "SUM") return values.reduce((sum, value) => sum + value, 0);
+        if (fnName === "AVERAGE") return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+        if (fnName === "MIN") return values.length ? Math.min(...values) : 0;
+        if (fnName === "MAX") return values.length ? Math.max(...values) : 0;
+      }
+
+      let jsExpression = expr;
+      jsExpression = jsExpression.replace(/([A-Z]+[0-9]+)/gi, (match) => {
+        const idx = coordToIndex(match);
+        if (!idx) return "0";
+        return String(getCellValue(idx.row, idx.col, new Set(seen)));
+      });
+
+      try {
+        const result = Function(`"use strict"; return (${jsExpression});`)();
+        return Number.isFinite(result) ? result : 0;
+      } catch (error) {
+        return 0;
+      }
+    }
+
+    function splitFormulaArgs(rawArgs) {
+      const result = [];
+      let current = "";
+      let depth = 0;
+      for (let i = 0; i < rawArgs.length; i++) {
+        const ch = rawArgs[i];
+        if (ch === "(") depth++;
+        if (ch === ")") depth--;
+        if (ch === "," && depth === 0) {
+          result.push(current);
+          current = "";
+          continue;
+        }
+        current += ch;
+      }
+      if (current.trim() !== "") result.push(current);
+      return result;
+    }
+
+    function parseRange(rangeText) {
+      const match = /^([A-Z]+[0-9]+):([A-Z]+[0-9]+)$/i.exec(rangeText.trim());
+      if (!match) return [];
+
+      const start = coordToIndex(match[1]);
+      const end = coordToIndex(match[2]);
+      if (!start || !end) return [];
+
+      const cells = [];
+      const startRow = Math.min(start.row, end.row);
+      const endRow = Math.max(start.row, end.row);
+      const startCol = Math.min(start.col, end.col);
+      const endCol = Math.max(start.col, end.col);
+
+      for (let r = startRow; r <= endRow; r++) {
+        for (let c = startCol; c <= endCol; c++) {
+          cells.push({ row: r, col: c });
+        }
+      }
+      return cells;
+    }
+
+    function getCellDisplayValue(row, col) {
+      const raw = spreadsheetState[row]?.[col] ?? "";
+      if (raw === "") return "";
+      if (!String(raw).trim().startsWith("=")) return raw;
+      const value = getCellValue(row, col, new Set());
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function renderSpreadsheet() {
+      const table = document.createElement("table");
+      table.className = "sheet-grid";
+
+      const headerRow = document.createElement("tr");
+      const blankHeader = document.createElement("th");
+      blankHeader.textContent = "";
+      headerRow.appendChild(blankHeader);
+
+      for (let col = 0; col < spreadsheetState[0].length; col++) {
+        const th = document.createElement("th");
+        th.textContent = colToLetter(col);
+        headerRow.appendChild(th);
+      }
+      table.appendChild(headerRow);
+
+      for (let row = 0; row < spreadsheetState.length; row++) {
+        const tr = document.createElement("tr");
+        const rowLabel = document.createElement("th");
+        rowLabel.textContent = String(row + 1);
+        tr.appendChild(rowLabel);
+
+        for (let col = 0; col < spreadsheetState[row].length; col++) {
+          const td = document.createElement("td");
+          const input = document.createElement("input");
+          const rawValue = spreadsheetState[row][col];
+          const displayValue = getCellDisplayValue(row, col);
+          input.value = rawValue || (typeof displayValue === "number" ? String(displayValue) : "");
+          input.dataset.row = String(row);
+          input.dataset.col = String(col);
+          if (String(rawValue).trim().startsWith("=")) {
+            input.classList.add("formula-cell");
+          }
+
+          input.addEventListener("change", (event) => {
+            const target = event.target;
+            spreadsheetState[row][col] = target.value;
+            renderSpreadsheet();
+          });
+
+          td.appendChild(input);
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
 
       overviewContent.innerHTML = `
-        <div class="formula-grid">
-          ${formulaCards.map(card => `
-            <div class="formula-box">
-              <span class="formula-label">${card.label}</span>
-              <span class="formula-result">${card.result}</span>
-            </div>
-          `).join("")}
+        <div class="sheet-toolbar">
+          <div class="left-tools">
+            <span class="summary-chip">행 ${spreadsheetState.length}</span>
+            <span class="summary-chip">열 ${spreadsheetState[0].length}</span>
+          </div>
+          <div class="right-tools">
+            <span class="summary-chip">수식 예: =A1+B1 / =SUM(A1:A3)</span>
+          </div>
         </div>
+        <div class="sheet-grid-wrap"></div>
+        <div id="sheetSummary" class="sheet-summary"></div>
+      `;
 
-        <div class="spreadsheet-table-wrap">
-          <table class="spreadsheet-table">
-            <thead>
-              <tr>
-                <th>날짜</th>
-                <th>유형</th>
-                <th>분류</th>
-                <th>메모</th>
-                <th>금액</th>
-                <th>결과</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-              <tr class="total-row">
-                <td colspan="4">합계</td>
-                <td>${formatCurrency(income + expense)}</td>
-                <td class="amount ${balance >= 0 ? "income" : "expense"}">${formatCurrency(balance)}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      overviewContent.querySelector(".sheet-grid-wrap").appendChild(table);
+      renderSheetSummary();
+    }
+
+    function renderSheetSummary() {
+      const summary = document.getElementById("sheetSummary");
+      if (!summary) return;
+
+      let total = 0;
+      let formulaCount = 0;
+      spreadsheetState.forEach(row => {
+        row.forEach(value => {
+          if (String(value).trim().startsWith("=")) formulaCount += 1;
+          const num = Number(String(value).trim().replace(/,/g, ""));
+          if (Number.isFinite(num)) total += num;
+        });
+      });
+
+      summary.innerHTML = `
+        <span class="summary-chip">입력 셀 합계: ${formatCurrency(total)}</span>
+        <span class="summary-chip">수식 셀 수: ${formulaCount}</span>
       `;
     }
+
+    document.getElementById("sheetAddRowBtn").addEventListener("click", () => {
+      spreadsheetState.push(Array.from({ length: spreadsheetState[0].length }, () => ""));
+      renderSpreadsheet();
+    });
+
+    document.getElementById("sheetAddColBtn").addEventListener("click", () => {
+      spreadsheetState.forEach(row => row.push(""));
+      renderSpreadsheet();
+    });
+
+    document.getElementById("sheetResetBtn").addEventListener("click", () => {
+      spreadsheetState = createSheetState(6, 4);
+      renderSpreadsheet();
+    });
 
     function render() {
       const entries = getEntries();
       renderSummary(entries);
       renderTable();
-      renderOverview();
+      renderSpreadsheet();
     }
 
     form.addEventListener("submit", (event) => {
@@ -912,9 +1055,6 @@
         alert("백업 데이터 형식이 올바르지 않습니다.");
       }
     });
-
-    yearFilter.addEventListener("change", renderOverview);
-    monthFilter.addEventListener("change", renderOverview);
 
     updateTypeButtons();
     render();
