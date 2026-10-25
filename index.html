@@ -15,26 +15,84 @@
       --expense: #ef4444;
       --primary: #2563eb;
       --shadow: 0 8px 20px rgba(0,0,0,0.06);
+      --warning: #f59e0b;
     }
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
+      min-height: 100%;
       font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
       background: var(--bg);
       color: var(--text);
     }
 
+    body {
+      min-height: 100vh;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 32px auto;
       padding: 0 16px 40px;
     }
 
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     h1 {
-      margin: 0 0 20px;
+      margin: 0;
       font-size: 2rem;
+    }
+
+    .screen-switch {
+      display: inline-flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .switch-btn, .primary-btn, .ghost-btn, .danger-btn {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    .switch-btn.active,
+    .primary-btn {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .primary-btn { padding: 10px 16px; }
+    .ghost-btn { background: #f8fafc; }
+    .danger-btn {
+      background: rgba(239, 68, 68, 0.08);
+      color: var(--expense);
+      border-color: rgba(239,68,68,0.12);
     }
 
     .summary {
@@ -205,8 +263,14 @@
       transition: 0.2s ease;
     }
 
-    .submit-btn:hover {
-      filter: brightness(1.05);
+    .submit-btn:hover,
+    .switch-btn:hover,
+    .primary-btn:hover,
+    .ghost-btn:hover,
+    .danger-btn:hover,
+    .overview-btn:hover,
+    .tab-btn:hover {
+      filter: brightness(0.98);
     }
 
     .table-wrap {
@@ -223,6 +287,7 @@
       padding: 12px 10px;
       text-align: left;
       border-bottom: 1px solid var(--line);
+      vertical-align: middle;
     }
 
     th {
@@ -281,6 +346,156 @@
       letter-spacing: 0.02em;
     }
 
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .overview-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .overview-controls .controls-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .overview-controls label {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .overview-controls select {
+      min-width: 120px;
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: white;
+    }
+
+    .overview-panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .overview-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .overview-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      background: white;
+    }
+
+    .overview-table th,
+    .overview-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    .overview-table th {
+      background: #f8fafc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    .summary-row {
+      background: #eef6ff;
+      font-weight: 700;
+    }
+
+    .month-row {
+      background: #f9fafb;
+      font-weight: 700;
+    }
+
+    .year-block {
+      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .year-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #f8fafc, #eef4ff);
+      border-bottom: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .year-summary-mini {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .backup-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .backup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: #f8fafc;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+
+    .backup-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    textarea.backup-box {
+      width: 100%;
+      min-height: 160px;
+      border: none;
+      resize: vertical;
+      padding: 14px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      background: #f9fafb;
+    }
+
     @media (max-width: 860px) {
       .summary { grid-template-columns: 1fr; }
       .content { grid-template-columns: 1fr; }
@@ -291,121 +506,185 @@
       .overview-btn {
         width: 100%;
       }
+      .topbar {
+        align-items: flex-start;
+      }
+      .screen-switch {
+        width: 100%;
+      }
+      .switch-btn {
+        flex: 1;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>가계부</h1>
-
-    <div class="summary">
-      <div class="card income">
-        <div class="label">수입</div>
-        <div class="value" id="incomeTotal">0원</div>
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>가계부</h1>
       </div>
-      <div class="card expense">
-        <div class="label">지출</div>
-        <div class="value" id="expenseTotal">0원</div>
-      </div>
-      <div class="card balance">
-        <div class="label">잔액</div>
-        <div class="value" id="balanceTotal">0원</div>
+      <div class="screen-switch">
+        <button type="button" class="switch-btn active" data-screen="main">입력 화면</button>
+        <button type="button" class="switch-btn" data-screen="overview">전체 표 화면</button>
       </div>
     </div>
 
-    <div class="content">
-      <section class="panel">
-        <h2>내역 추가</h2>
+    <section id="mainScreen" class="screen active">
+      <div class="summary">
+        <div class="card income">
+          <div class="label">수입</div>
+          <div class="value" id="incomeTotal">0원</div>
+        </div>
+        <div class="card expense">
+          <div class="label">지출</div>
+          <div class="value" id="expenseTotal">0원</div>
+        </div>
+        <div class="card balance">
+          <div class="label">잔액</div>
+          <div class="value" id="balanceTotal">0원</div>
+        </div>
+      </div>
 
-        <form id="ledgerForm" class="form-grid">
-          <div class="field">
-            <label for="date">날짜</label>
-            <input type="date" id="date" required />
+      <div class="content">
+        <section class="panel">
+          <h2>내역 추가</h2>
+
+          <form id="ledgerForm" class="form-grid">
+            <div class="field">
+              <label for="date">날짜</label>
+              <input type="date" id="date" required />
+            </div>
+
+            <div class="field">
+              <label>유형</label>
+              <div class="type-row">
+                <button type="button" class="type-btn active" data-type="income">수입</button>
+                <button type="button" class="type-btn" data-type="expense">지출</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="category">분류</label>
+              <select id="category" required>
+                <option value="급여">급여</option>
+                <option value="부업">부업</option>
+                <option value="식비">식비</option>
+                <option value="교통">교통</option>
+                <option value="주거">주거</option>
+                <option value="쇼핑">쇼핑</option>
+                <option value="통신">통신</option>
+                <option value="의료">의료</option>
+                <option value="교육">교육</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="amount">금액</label>
+              <input type="number" id="amount" min="1" step="1" placeholder="예: 50000" required />
+            </div>
+
+            <div class="field">
+              <label for="memo">메모</label>
+              <input type="text" id="memo" maxlength="50" placeholder="예: 점심 식사" />
+            </div>
+
+            <button type="submit" class="submit-btn">추가하기</button>
+          </form>
+
+          <div class="backup-card">
+            <div class="backup-header">
+              <strong>데이터 백업</strong>
+              <div class="backup-actions">
+                <button type="button" class="primary-btn" id="backupBtn">백업 생성</button>
+                <button type="button" class="ghost-btn" id="restoreBtn">복원</button>
+              </div>
+            </div>
+            <textarea id="backupBox" class="backup-box" placeholder="백업 데이터를 여기에 붙여 넣고 복원 버튼을 누르세요."></textarea>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="right-panel-header">
+            <div class="tab-header">
+              <button type="button" class="tab-btn active" data-tab="transactions">거래 내역</button>
+              <button type="button" class="tab-btn" data-tab="summary">정리 표</button>
+            </div>
+            <button type="button" class="overview-btn" id="overviewBtn">전체 표 보기</button>
           </div>
 
-          <div class="field">
-            <label>유형</label>
-            <div class="type-row">
-              <button type="button" class="type-btn active" data-type="income">수입</button>
-              <button type="button" class="type-btn" data-type="expense">지출</button>
+          <div id="transactionsPanel" class="tab-panel active">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>날짜</th>
+                    <th>유형</th>
+                    <th>분류</th>
+                    <th>메모</th>
+                    <th>금액</th>
+                    <th>삭제</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerTableBody"></tbody>
+              </table>
             </div>
           </div>
 
-          <div class="field">
-            <label for="category">분류</label>
-            <select id="category" required>
-              <option value="급여">급여</option>
-              <option value="부업">부업</option>
-              <option value="식비">식비</option>
-              <option value="교통">교통</option>
-              <option value="주거">주거</option>
-              <option value="쇼핑">쇼핑</option>
-              <option value="통신">통신</option>
-              <option value="의료">의료</option>
-              <option value="교육">교육</option>
-              <option value="기타">기타</option>
+          <div id="summaryPanel" class="tab-panel">
+            <p class="summary-subtitle">상세 항목</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>유형</th>
+                    <th>분류</th>
+                    <th>건수</th>
+                    <th>총합</th>
+                  </tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="overviewScreen" class="screen">
+      <div class="overview-panel">
+        <div class="overview-controls">
+          <div class="controls-group">
+            <label for="yearFilter">연도</label>
+            <select id="yearFilter">
+              <option value="all">전체</option>
+            </select>
+            <label for="monthFilter">월</label>
+            <select id="monthFilter">
+              <option value="all">전체</option>
+              <option value="01">1월</option>
+              <option value="02">2월</option>
+              <option value="03">3월</option>
+              <option value="04">4월</option>
+              <option value="05">5월</option>
+              <option value="06">6월</option>
+              <option value="07">7월</option>
+              <option value="08">8월</option>
+              <option value="09">9월</option>
+              <option value="10">10월</option>
+              <option value="11">11월</option>
+              <option value="12">12월</option>
             </select>
           </div>
-
-          <div class="field">
-            <label for="amount">금액</label>
-            <input type="number" id="amount" min="0" step="0" placeholder="예: 50000" required />
-          </div>
-
-          <div class="field">
-            <label for="memo">메모</label>
-            <input type="text" id="memo" maxlength="50" placeholder="예: 점심 식사" />
-          </div>
-
-          <button type="submit" class="submit-btn">추가하기</button>
-        </form>
-      </section>
-
-      <section class="panel">
-        <div class="right-panel-header">
-          <div class="tab-header">
-            <button type="button" class="tab-btn active" data-tab="transactions">거래 내역</button>
-            <button type="button" class="tab-btn" data-tab="summary">정리 표</button>
-          </div>
-          <button type="button" class="overview-btn" id="overviewBtn">전체 표 보기</button>
-        </div>
-
-        <div id="transactionsPanel" class="tab-panel active">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>날짜</th>
-                  <th>유형</th>
-                  <th>분류</th>
-                  <th>메모</th>
-                  <th>금액</th>
-                  <th>삭제</th>
-                </tr>
-              </thead>
-              <tbody id="ledgerTableBody"></tbody>
-            </table>
+          <div class="controls-group">
+            <button type="button" class="ghost-btn" id="backToMainBtn">입력 화면으로</button>
           </div>
         </div>
 
-        <div id="summaryPanel" class="tab-panel">
-          <p class="summary-subtitle">상세 항목</p>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>유형</th>
-                  <th>분류</th>
-                  <th>건수</th>
-                  <th>총합</th>
-                </tr>
-              </thead>
-              <tbody id="summaryTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    </div>
+        <div id="overviewContent"></div>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -420,38 +699,65 @@
     const categoryInput = document.getElementById("category");
     const amountInput = document.getElementById("amount");
     const memoInput = document.getElementById("memo");
+    const yearFilter = document.getElementById("yearFilter");
+    const monthFilter = document.getElementById("monthFilter");
+    const overviewContent = document.getElementById("overviewContent");
+    const backupBox = document.getElementById("backupBox");
+    const backupBtn = document.getElementById("backupBtn");
+    const restoreBtn = document.getElementById("restoreBtn");
+    const mainScreen = document.getElementById("mainScreen");
+    const overviewScreen = document.getElementById("overviewScreen");
+    const switchButtons = document.querySelectorAll(".switch-btn");
+    const backToMainBtn = document.getElementById("backToMainBtn");
 
     let selectedType = "income";
 
     dateInput.value = new Date().toISOString().slice(0, 10);
 
-    function showTab(targetTab) {
-      tabButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.tab === targetTab));
-      document.getElementById("transactionsPanel").classList.toggle("active", targetTab === "transactions");
-      document.getElementById("summaryPanel").classList.toggle("active", targetTab === "summary");
+    function safeStorageGet() {
+      try {
+        return window.localStorage;
+      } catch (error) {
+        return {
+          store: {},
+          getItem(key) { return this.store[key] ?? null; },
+          setItem(key, value) { this.store[key] = String(value); },
+          removeItem(key) { delete this.store[key]; }
+        };
+      }
     }
 
-    typeButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        selectedType = button.dataset.type;
-        typeButtons.forEach(btn => btn.classList.toggle("active", btn === button));
-        if (selectedType === "income") {
-          categoryInput.value = "급여";
-        } else {
-          categoryInput.value = "식비";
-        }
+    function loadEntries() {
+      const storage = safeStorageGet();
+      const raw = storage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveEntries(entries) {
+      const storage = safeStorageGet();
+      storage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function showScreen(screenName) {
+      const isMain = screenName === "main";
+      mainScreen.classList.toggle("active", isMain);
+      overviewScreen.classList.toggle("active", !isMain);
+      switchButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.screen === screenName);
       });
+    }
+
+    switchButtons.forEach(button => {
+      button.addEventListener("click", () => showScreen(button.dataset.screen));
     });
 
-    tabButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        showTab(button.dataset.tab);
-      });
-    });
-
-    overviewBtn.addEventListener("click", () => {
-      showTab("summary");
-    });
+    backToMainBtn.addEventListener("click", () => showScreen("main"));
 
     function formatCurrency(value) {
       return new Intl.NumberFormat("ko-KR", {
@@ -459,20 +765,6 @@
         currency: "KRW",
         maximumFractionDigits: 0
       }).format(value);
-    }
-
-    function loadEntries() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      try {
-        return JSON.parse(raw);
-      } catch {
-        return [];
-      }
-    }
-
-    function saveEntries(entries) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     }
 
     function getEntries() {
@@ -580,8 +872,167 @@
           const filtered = entries.filter(item => item.id !== targetId);
           saveEntries(filtered);
           render();
+          renderOverview();
         });
       });
+    }
+
+    function buildYearSelect(entries) {
+      const years = [...new Set(entries.map(entry => new Date(entry.date + "T00:00:00").getFullYear()))].sort((a, b) => b - a);
+      const current = yearFilter.value;
+      yearFilter.innerHTML = '<option value="all">전체</option>' +
+        years.map(year => `<option value="${year}">${year}년</option>`).join("");
+      yearFilter.value = years.includes(Number(current)) ? String(current) : "all";
+    }
+
+    function getFilteredEntries(entries) {
+      const selectedYear = yearFilter.value;
+      const selectedMonth = monthFilter.value;
+
+      return entries.filter(entry => {
+        const date = new Date(entry.date + "T00:00:00");
+        const yearMatch = selectedYear === "all" || date.getFullYear() === Number(selectedYear);
+        const monthMatch = selectedMonth === "all" || String(date.getMonth() + 1).padStart(2, "0") === selectedMonth;
+        return yearMatch && monthMatch;
+      });
+    }
+
+    function renderOverview() {
+      const entries = getEntries();
+      buildYearSelect(entries);
+      const filteredEntries = getFilteredEntries(entries);
+
+      if (!entries.length) {
+        overviewContent.innerHTML = '<div class="empty">아직 저장된 데이터가 없습니다.</div>';
+        return;
+      }
+
+      const grouped = new Map();
+      const visibleEntries = filteredEntries.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      visibleEntries.forEach(entry => {
+        const dateObj = new Date(entry.date + "T00:00:00");
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const monthLabel = `${year}년 ${Number(month)}월`;
+
+        if (!grouped.has(year)) {
+          grouped.set(year, {
+            year,
+            totalIncome: 0,
+            totalExpense: 0,
+            months: new Map()
+          });
+        }
+
+        const yearBucket = grouped.get(year);
+        if (entry.type === "income") yearBucket.totalIncome += Number(entry.amount);
+        else yearBucket.totalExpense += Number(entry.amount);
+
+        if (!yearBucket.months.has(month)) {
+          yearBucket.months.set(month, {
+            month,
+            monthLabel,
+            income: 0,
+            expense: 0,
+            records: []
+          });
+        }
+
+        const monthBucket = yearBucket.months.get(month);
+        if (entry.type === "income") monthBucket.income += Number(entry.amount);
+        else monthBucket.expense += Number(entry.amount);
+        monthBucket.records.push(entry);
+      });
+
+      const years = [...grouped.values()].sort((a, b) => b.year - a.year);
+
+      if (!years.length) {
+        overviewContent.innerHTML = '<div class="empty">선택한 연/월에 해당하는 데이터가 없습니다.</div>';
+        return;
+      }
+
+      const summaryHtml = years.map(yearBucket => {
+        const months = [...yearBucket.months.values()].sort((a, b) => Number(b.month) - Number(a.month));
+
+        const monthRows = months.map(monthBucket => {
+          const rows = monthBucket.records
+            .slice()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map(entry => `
+              <tr>
+                <td>${entry.date}</td>
+                <td><span class="tag ${entry.type === "income" ? "income" : "expense"}">${entry.type === "income" ? "수입" : "지출"}</span></td>
+                <td>${entry.category}</td>
+                <td>${entry.memo || "-"}</td>
+                <td class="amount ${entry.type === "income" ? "income" : "expense"}">${entry.type === "income" ? "+" : "-"}${formatCurrency(Number(entry.amount))}</td>
+              </tr>
+            `).join("");
+
+          const monthTotal = monthBucket.income - monthBucket.expense;
+
+          return `
+            <tr class="month-row">
+              <td colspan="5">${monthBucket.monthLabel} 합계</td>
+            </tr>
+            <tr class="summary-row">
+              <td>요약</td>
+              <td>수입</td>
+              <td>${formatCurrency(monthBucket.income)}</td>
+              <td>지출</td>
+              <td>${formatCurrency(monthBucket.expense)}</td>
+            </tr>
+            <tr class="summary-row">
+              <td colspan="3">월 잔액</td>
+              <td colspan="2">${formatCurrency(monthTotal)}</td>
+            </tr>
+            ${rows}
+          `;
+        }).join("");
+
+        const yearTotal = yearBucket.totalIncome - yearBucket.totalExpense;
+
+        return `
+          <div class="year-block">
+            <div class="year-header">
+              <span>${yearBucket.year}년</span>
+              <div class="year-summary-mini">
+                <span>수입: ${formatCurrency(yearBucket.totalIncome)}</span>
+                <span>지출: ${formatCurrency(yearBucket.totalExpense)}</span>
+                <span>잔액: ${formatCurrency(yearTotal)}</span>
+              </div>
+            </div>
+            <div class="overview-table-wrap">
+              <table class="overview-table">
+                <thead>
+                  <tr>
+                    <th>날짜</th>
+                    <th>유형</th>
+                    <th>분류</th>
+                    <th>메모</th>
+                    <th>금액</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="summary-row">
+                    <td colspan="5">${yearBucket.year}년 전체 합계</td>
+                  </tr>
+                  <tr class="summary-row">
+                    <td>수입</td>
+                    <td>${formatCurrency(yearBucket.totalIncome)}</td>
+                    <td>지출</td>
+                    <td>${formatCurrency(yearBucket.totalExpense)}</td>
+                    <td>잔액 ${formatCurrency(yearTotal)}</td>
+                  </tr>
+                  ${monthRows}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      overviewContent.innerHTML = summaryHtml;
     }
 
     function render() {
@@ -589,7 +1040,84 @@
       renderSummary(entries);
       renderSummaryTable(entries);
       renderTable();
+      renderOverview();
     }
+
+    function makeBackupData() {
+      const entries = getEntries();
+      return JSON.stringify({
+        exportedAt: new Date().toISOString(),
+        entries
+      }, null, 2);
+    }
+
+    backupBtn.addEventListener("click", () => {
+      const text = makeBackupData();
+      backupBox.value = text;
+      navigator.clipboard?.writeText(text).catch(() => {});
+      alert("백업 데이터가 생성되었습니다. 복원에 사용할 수 있습니다.");
+    });
+
+    restoreBtn.addEventListener("click", () => {
+      const raw = backupBox.value.trim();
+      if (!raw) {
+        alert("복원할 백업 데이터를 입력해 주세요.");
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        const entries = Array.isArray(parsed) ? parsed : parsed.entries;
+
+        if (!Array.isArray(entries)) {
+          throw new Error("잘못된 백업 형식입니다.");
+        }
+
+        const sanitizedEntries = entries.map((entry, index) => ({
+          id: Number(entry.id) || Date.now() + index,
+          date: entry.date,
+          type: entry.type === "expense" ? "expense" : "income",
+          category: entry.category || "기타",
+          amount: Number(entry.amount) || 0,
+          memo: entry.memo || ""
+        })).filter(entry => entry.date && Number(entry.amount) > 0);
+
+        saveEntries(sanitizedEntries);
+        render();
+        alert("백업 복원이 완료되었습니다.");
+      } catch (error) {
+        alert("백업 데이터를 읽을 수 없습니다. 형식을 확인해 주세요.");
+      }
+    });
+
+    yearFilter.addEventListener("change", renderOverview);
+    monthFilter.addEventListener("change", renderOverview);
+
+    overviewBtn.addEventListener("click", () => {
+      showScreen("overview");
+      renderOverview();
+    });
+
+    typeButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        selectedType = button.dataset.type;
+        typeButtons.forEach(btn => btn.classList.toggle("active", btn === button));
+        if (selectedType === "income") {
+          categoryInput.value = "급여";
+        } else {
+          categoryInput.value = "식비";
+        }
+      });
+    });
+
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        tabButtons.forEach(btn => btn.classList.toggle("active", btn === button));
+        const target = button.dataset.tab;
+        document.getElementById("transactionsPanel").classList.toggle("active", target === "transactions");
+        document.getElementById("summaryPanel").classList.toggle("active", target === "summary");
+      });
+    });
 
     form.addEventListener("submit", (event) => {
       event.preventDefault();
@@ -603,7 +1131,6 @@
       }
 
       const entries = getEntries();
-
       const newEntry = {
         id: Date.now(),
         date,
@@ -621,6 +1148,7 @@
       typeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.type === "income"));
       categoryInput.value = "급여";
       render();
+      renderOverview();
     });
 
     render();
