@@ -336,96 +336,94 @@
       padding: 18px;
     }
 
-    .sheet-toolbar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .sheet-toolbar .left-tools,
-    .sheet-toolbar .right-tools {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .sheet-grid-wrap {
-      overflow: auto;
+    .year-block {
+      margin-bottom: 24px;
       border: 1px solid var(--line);
       border-radius: 14px;
+      overflow: hidden;
       background: #fff;
     }
 
-    .sheet-grid {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 720px;
-      table-layout: fixed;
+    .year-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #f8fafc, #eef4ff);
+      border-bottom: 1px solid var(--line);
+      font-weight: 800;
     }
 
-    .sheet-grid th,
-    .sheet-grid td {
-      border: 1px solid var(--line);
-      padding: 0;
-      height: 44px;
-      background: #fff;
-    }
-
-    .sheet-grid th {
-      background: #f8fafc;
+    .year-summary-mini {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 0.88rem;
       color: var(--muted);
-      font-size: 0.8rem;
-      text-align: center;
-      width: 110px;
-      min-width: 110px;
     }
 
-    .sheet-grid td {
-      width: 110px;
+    .month-block {
+      border-top: 1px solid var(--line);
+      background: #fff;
     }
 
-    .sheet-grid input {
-      width: 100%;
-      height: 100%;
-      border: none;
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      background: transparent;
-      color: var(--text);
-      outline: none;
-    }
-
-    .sheet-grid input:focus {
-      background: #f4f8ff;
-      box-shadow: inset 0 0 0 2px rgba(37, 99, 235, 0.12);
-    }
-
-    .sheet-grid .formula-cell {
-      background: #f9fbff;
-      color: var(--primary);
+    .month-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f9fafb;
+      border-bottom: 1px solid var(--line);
       font-weight: 700;
     }
 
-    .sheet-summary {
-      margin-top: 16px;
+    .month-summary {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--muted);
     }
 
-    .summary-chip {
-      border: 1px solid var(--line);
-      border-radius: 999px;
+    .month-table-wrap {
+      overflow-x: auto;
+    }
+
+    .month-table {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+    }
+
+    .month-table th,
+    .month-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .month-table th {
       background: #f8fafc;
       color: var(--muted);
       font-size: 0.8rem;
       font-weight: 700;
-      padding: 8px 12px;
     }
+
+    .month-table tfoot td {
+      background: #eef6ff;
+      font-weight: 800;
+    }
+
+    .summary-row-label {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .balance-positive { color: var(--income); font-weight: 800; }
+    .balance-negative { color: var(--expense); font-weight: 800; }
 
     .backup-card {
       background: #fff;
@@ -478,6 +476,11 @@
       }
       .switch-btn {
         flex: 1;
+      }
+      .year-header,
+      .month-header {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
@@ -594,11 +597,6 @@
       <div class="overview-panel">
         <div class="overview-controls">
           <div class="controls-group">
-            <button type="button" class="ghost-btn" id="sheetAddRowBtn">행 추가</button>
-            <button type="button" class="ghost-btn" id="sheetAddColBtn">열 추가</button>
-            <button type="button" class="ghost-btn" id="sheetResetBtn">초기화</button>
-          </div>
-          <div class="controls-group">
             <button type="button" class="ghost-btn" id="backToMainBtn">입력 화면으로</button>
           </div>
         </div>
@@ -627,7 +625,6 @@
     const backToMainBtn = document.getElementById("backToMainBtn");
 
     let selectedType = "income";
-    let spreadsheetState = createSheetState(6, 4);
 
     dateInput.value = new Date().toISOString().slice(0, 10);
 
@@ -758,247 +755,138 @@
       });
     }
 
-    function createSheetState(rows = 6, cols = 4) {
-      return Array.from({ length: rows }, () => Array.from({ length: cols }, () => ""));
-    }
+    function renderOverview() {
+      const entries = getEntries();
 
-    function colToLetter(col) {
-      let result = "";
-      let current = col + 1;
-      while (current > 0) {
-        const remainder = (current - 1) % 26;
-        result = String.fromCharCode(65 + remainder) + result;
-        current = Math.floor((current - 1) / 26);
-      }
-      return result;
-    }
-
-    function coordToIndex(cellRef) {
-      const match = /^([A-Z]+)([0-9]+)$/i.exec(cellRef.trim());
-      if (!match) return null;
-      const col = match[1].toUpperCase();
-      const row = Number(match[2]);
-      return { row: row - 1, col: col.split("").reduce((sum, ch) => sum * 26 + (ch.charCodeAt(0) - 64), 0) - 1 };
-    }
-
-    function getCellValue(row, col, seen = new Set()) {
-      const key = `${row}:${col}`;
-      if (seen.has(key)) return 0;
-      seen.add(key);
-
-      const raw = spreadsheetState[row]?.[col] ?? "";
-      if (raw === "") return 0;
-
-      const value = String(raw).trim();
-      if (!value.startsWith("=")) {
-        const num = Number(value.replace(/,/g, ""));
-        return Number.isFinite(num) ? num : 0;
+      if (!entries.length) {
+        overviewContent.innerHTML = '<div class="empty">아직 저장된 데이터가 없습니다.</div>';
+        return;
       }
 
-      return evaluateFormula(value, row, col, seen);
-    }
+      const groupedByYear = new Map();
 
-    function evaluateFormula(formula, row, col, seen) {
-      const expr = formula.slice(1).trim();
+      entries.forEach(entry => {
+        const date = new Date(entry.date + "T00:00:00");
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
 
-      const fnMatch = /^([A-Z]+)\s*\((.*)\)\s*$/i.exec(expr);
-      if (fnMatch) {
-        const fnName = fnMatch[1].toUpperCase();
-        const argsRaw = fnMatch[2];
-        const args = splitFormulaArgs(argsRaw);
-
-        const values = [];
-        args.forEach(arg => {
-          const trimmed = arg.trim();
-          if (trimmed === "") return;
-          if (trimmed.includes(":")) {
-            const range = parseRange(trimmed);
-            range.forEach(cell => values.push(getCellValue(cell.row, cell.col, new Set(seen))));
-            return;
-          }
-          if (/^[A-Z]+[0-9]+$/i.test(trimmed)) {
-            const index = coordToIndex(trimmed);
-            if (index) values.push(getCellValue(index.row, index.col, new Set(seen)));
-            return;
-          }
-          const num = Number(trimmed);
-          values.push(Number.isFinite(num) ? num : 0);
-        });
-
-        if (fnName === "SUM") return values.reduce((sum, value) => sum + value, 0);
-        if (fnName === "AVERAGE") return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
-        if (fnName === "MIN") return values.length ? Math.min(...values) : 0;
-        if (fnName === "MAX") return values.length ? Math.max(...values) : 0;
-      }
-
-      let jsExpression = expr;
-      jsExpression = jsExpression.replace(/([A-Z]+[0-9]+)/gi, (match) => {
-        const idx = coordToIndex(match);
-        if (!idx) return "0";
-        return String(getCellValue(idx.row, idx.col, new Set(seen)));
-      });
-
-      try {
-        const result = Function(`"use strict"; return (${jsExpression});`)();
-        return Number.isFinite(result) ? result : 0;
-      } catch (error) {
-        return 0;
-      }
-    }
-
-    function splitFormulaArgs(rawArgs) {
-      const result = [];
-      let current = "";
-      let depth = 0;
-      for (let i = 0; i < rawArgs.length; i++) {
-        const ch = rawArgs[i];
-        if (ch === "(") depth++;
-        if (ch === ")") depth--;
-        if (ch === "," && depth === 0) {
-          result.push(current);
-          current = "";
-          continue;
-        }
-        current += ch;
-      }
-      if (current.trim() !== "") result.push(current);
-      return result;
-    }
-
-    function parseRange(rangeText) {
-      const match = /^([A-Z]+[0-9]+):([A-Z]+[0-9]+)$/i.exec(rangeText.trim());
-      if (!match) return [];
-
-      const start = coordToIndex(match[1]);
-      const end = coordToIndex(match[2]);
-      if (!start || !end) return [];
-
-      const cells = [];
-      const startRow = Math.min(start.row, end.row);
-      const endRow = Math.max(start.row, end.row);
-      const startCol = Math.min(start.col, end.col);
-      const endCol = Math.max(start.col, end.col);
-
-      for (let r = startRow; r <= endRow; r++) {
-        for (let c = startCol; c <= endCol; c++) {
-          cells.push({ row: r, col: c });
-        }
-      }
-      return cells;
-    }
-
-    function getCellDisplayValue(row, col) {
-      const raw = spreadsheetState[row]?.[col] ?? "";
-      if (raw === "") return "";
-      if (!String(raw).trim().startsWith("=")) return raw;
-      const value = getCellValue(row, col, new Set());
-      return Number.isFinite(value) ? value : 0;
-    }
-
-    function renderSpreadsheet() {
-      const table = document.createElement("table");
-      table.className = "sheet-grid";
-
-      const headerRow = document.createElement("tr");
-      const blankHeader = document.createElement("th");
-      blankHeader.textContent = "";
-      headerRow.appendChild(blankHeader);
-
-      for (let col = 0; col < spreadsheetState[0].length; col++) {
-        const th = document.createElement("th");
-        th.textContent = colToLetter(col);
-        headerRow.appendChild(th);
-      }
-      table.appendChild(headerRow);
-
-      for (let row = 0; row < spreadsheetState.length; row++) {
-        const tr = document.createElement("tr");
-        const rowLabel = document.createElement("th");
-        rowLabel.textContent = String(row + 1);
-        tr.appendChild(rowLabel);
-
-        for (let col = 0; col < spreadsheetState[row].length; col++) {
-          const td = document.createElement("td");
-          const input = document.createElement("input");
-          const rawValue = spreadsheetState[row][col];
-          const displayValue = getCellDisplayValue(row, col);
-          input.value = rawValue || (typeof displayValue === "number" ? String(displayValue) : "");
-          input.dataset.row = String(row);
-          input.dataset.col = String(col);
-          if (String(rawValue).trim().startsWith("=")) {
-            input.classList.add("formula-cell");
-          }
-
-          input.addEventListener("change", (event) => {
-            const target = event.target;
-            spreadsheetState[row][col] = target.value;
-            renderSpreadsheet();
+        if (!groupedByYear.has(year)) {
+          groupedByYear.set(year, {
+            year,
+            totalIncome: 0,
+            totalExpense: 0,
+            months: new Map()
           });
-
-          td.appendChild(input);
-          tr.appendChild(td);
         }
-        table.appendChild(tr);
-      }
 
-      overviewContent.innerHTML = `
-        <div class="sheet-toolbar">
-          <div class="left-tools">
-            <span class="summary-chip">행 ${spreadsheetState.length}</span>
-            <span class="summary-chip">열 ${spreadsheetState[0].length}</span>
-          </div>
-          <div class="right-tools">
-            <span class="summary-chip">수식 예: =A1+B1 / =SUM(A1:A3)</span>
-          </div>
-        </div>
-        <div class="sheet-grid-wrap"></div>
-        <div id="sheetSummary" class="sheet-summary"></div>
-      `;
+        const yearBucket = groupedByYear.get(year);
+        if (entry.type === "income") yearBucket.totalIncome += Number(entry.amount);
+        else yearBucket.totalExpense += Number(entry.amount);
 
-      overviewContent.querySelector(".sheet-grid-wrap").appendChild(table);
-      renderSheetSummary();
-    }
+        if (!yearBucket.months.has(month)) {
+          yearBucket.months.set(month, {
+            month,
+            monthLabel: `${year}년 ${Number(month)}월`,
+            income: 0,
+            expense: 0,
+            records: []
+          });
+        }
 
-    function renderSheetSummary() {
-      const summary = document.getElementById("sheetSummary");
-      if (!summary) return;
-
-      let total = 0;
-      let formulaCount = 0;
-      spreadsheetState.forEach(row => {
-        row.forEach(value => {
-          if (String(value).trim().startsWith("=")) formulaCount += 1;
-          const num = Number(String(value).trim().replace(/,/g, ""));
-          if (Number.isFinite(num)) total += num;
-        });
+        const monthBucket = yearBucket.months.get(month);
+        if (entry.type === "income") monthBucket.income += Number(entry.amount);
+        else monthBucket.expense += Number(entry.amount);
+        monthBucket.records.push(entry);
       });
 
-      summary.innerHTML = `
-        <span class="summary-chip">입력 셀 합계: ${formatCurrency(total)}</span>
-        <span class="summary-chip">수식 셀 수: ${formulaCount}</span>
-      `;
+      const yearEntries = [...groupedByYear.values()].sort((a, b) => b.year - a.year);
+
+      overviewContent.innerHTML = yearEntries.map(yearBucket => {
+        const months = [...yearBucket.months.values()].sort((a, b) => Number(b.month) - Number(a.month));
+
+        const monthBlocks = months.map(monthBucket => {
+          const rows = monthBucket.records
+            .slice()
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .map(entry => `
+              <tr>
+                <td>${entry.date}</td>
+                <td><span class="tag ${entry.type === "income" ? "income" : "expense"}">${entry.type === "income" ? "수입" : "지출"}</span></td>
+                <td>${entry.category}</td>
+                <td>${entry.memo || "-"}</td>
+                <td class="amount ${entry.type === "income" ? "income" : "expense"}">${entry.type === "income" ? "+" : "-"}${formatCurrency(Number(entry.amount))}</td>
+              </tr>
+            `).join("");
+
+          const monthBalance = monthBucket.income - monthBucket.expense;
+
+          return `
+            <div class="month-block">
+              <div class="month-header">
+                <span>${monthBucket.monthLabel}</span>
+                <div class="month-summary">
+                  <span>수입: ${formatCurrency(monthBucket.income)}</span>
+                  <span>지출: ${formatCurrency(monthBucket.expense)}</span>
+                  <span>잔액: <span class="${monthBalance >= 0 ? "balance-positive" : "balance-negative"}">${formatCurrency(monthBalance)}</span></span>
+                </div>
+              </div>
+
+              <div class="month-table-wrap">
+                <table class="month-table">
+                  <thead>
+                    <tr>
+                      <th>날짜</th>
+                      <th>유형</th>
+                      <th>분류</th>
+                      <th>메모</th>
+                      <th>금액</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rows}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td class="summary-row-label">월 합계</td>
+                      <td>수입</td>
+                      <td>${formatCurrency(monthBucket.income)}</td>
+                      <td>지출</td>
+                      <td>${formatCurrency(monthBucket.expense)}</td>
+                    </tr>
+                    <tr>
+                      <td class="summary-row-label" colspan="3">월 잔액</td>
+                      <td colspan="2" class="${monthBalance >= 0 ? "balance-positive" : "balance-negative"}">${formatCurrency(monthBalance)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        const yearBalance = yearBucket.totalIncome - yearBucket.totalExpense;
+
+        return `
+          <div class="year-block">
+            <div class="year-header">
+              <span>${yearBucket.year}년</span>
+              <div class="year-summary-mini">
+                <span>수입: ${formatCurrency(yearBucket.totalIncome)}</span>
+                <span>지출: ${formatCurrency(yearBucket.totalExpense)}</span>
+                <span>잔액: <span class="${yearBalance >= 0 ? "balance-positive" : "balance-negative"}">${formatCurrency(yearBalance)}</span></span>
+              </div>
+            </div>
+            ${monthBlocks}
+          </div>
+        `;
+      }).join("");
     }
-
-    document.getElementById("sheetAddRowBtn").addEventListener("click", () => {
-      spreadsheetState.push(Array.from({ length: spreadsheetState[0].length }, () => ""));
-      renderSpreadsheet();
-    });
-
-    document.getElementById("sheetAddColBtn").addEventListener("click", () => {
-      spreadsheetState.forEach(row => row.push(""));
-      renderSpreadsheet();
-    });
-
-    document.getElementById("sheetResetBtn").addEventListener("click", () => {
-      spreadsheetState = createSheetState(6, 4);
-      renderSpreadsheet();
-    });
 
     function render() {
       const entries = getEntries();
       renderSummary(entries);
       renderTable();
-      renderSpreadsheet();
+      renderOverview();
     }
 
     form.addEventListener("submit", (event) => {
