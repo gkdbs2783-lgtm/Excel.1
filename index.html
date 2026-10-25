@@ -273,6 +273,14 @@
       padding: 28px 10px;
     }
 
+    .summary-subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0 0 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
     @media (max-width: 860px) {
       .summary { grid-template-columns: 1fr; }
       .content { grid-template-columns: 1fr; }
@@ -381,12 +389,14 @@
         </div>
 
         <div id="summaryPanel" class="tab-panel">
+          <p class="summary-subtitle">상세 항목</p>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th>유형</th>
                   <th>분류</th>
+                  <th>건수</th>
                   <th>총합</th>
                 </tr>
               </thead>
@@ -491,9 +501,17 @@
       entries.forEach(entry => {
         const key = `${entry.type}:${entry.category}`;
         if (!summaryMap.has(key)) {
-          summaryMap.set(key, { type: entry.type, category: entry.category, total: 0 });
+          summaryMap.set(key, {
+            type: entry.type,
+            category: entry.category,
+            total: 0,
+            count: 0
+          });
         }
-        summaryMap.get(key).total += Number(entry.amount);
+
+        const summary = summaryMap.get(key);
+        summary.total += Number(entry.amount);
+        summary.count += 1;
       });
 
       const rows = [...summaryMap.values()].sort((a, b) => {
@@ -506,7 +524,7 @@
       if (!rows.length) {
         summaryTableBody.innerHTML = `
           <tr>
-            <td colspan="3" class="empty">아직 정리된 표가 없습니다.</td>
+            <td colspan="4" class="empty">아직 정리된 표가 없습니다.</td>
           </tr>
         `;
         return;
@@ -518,6 +536,7 @@
         tr.innerHTML = `
           <td><span class="tag ${typeClass}">${row.type === "income" ? "수입" : "지출"}</span></td>
           <td>${row.category}</td>
+          <td>${row.count}건</td>
           <td class="amount ${typeClass}">${row.type === "income" ? "+" : "-"}${formatCurrency(row.total)}</td>
         `;
         summaryTableBody.appendChild(tr);
@@ -539,7 +558,6 @@
 
       entries.forEach(entry => {
         const row = document.createElement("tr");
-
         const typeClass = entry.type === "income" ? "income" : "expense";
         const sign = entry.type === "income" ? "+" : "-";
 
