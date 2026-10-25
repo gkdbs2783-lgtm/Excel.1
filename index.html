@@ -145,56 +145,6 @@
       font-size: 1.2rem;
     }
 
-    .right-panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 10px;
-    }
-
-    .tab-header {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .tab-btn,
-    .overview-btn {
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      color: var(--muted);
-      border-radius: 10px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      transition: 0.2s ease;
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .overview-btn {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      white-space: nowrap;
-    }
-
-    .tab-panel {
-      display: none;
-    }
-
-    .tab-panel.active {
-      display: block;
-    }
-
     .form-grid {
       display: grid;
       gap: 14px;
@@ -267,9 +217,7 @@
     .switch-btn:hover,
     .primary-btn:hover,
     .ghost-btn:hover,
-    .danger-btn:hover,
-    .overview-btn:hover,
-    .tab-btn:hover {
+    .danger-btn:hover {
       filter: brightness(0.98);
     }
 
@@ -338,14 +286,6 @@
       padding: 28px 10px;
     }
 
-    .summary-subtitle {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin: 0 0 12px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
     .screen {
       display: none;
     }
@@ -396,67 +336,83 @@
       padding: 18px;
     }
 
-    .overview-table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 12px;
+    .formula-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
-    .overview-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 900px;
+    .formula-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      padding: 14px 16px;
+      min-height: 110px;
+    }
+
+    .formula-box .formula-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .formula-box .formula-expression {
+      display: block;
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .formula-box .formula-result {
+      display: block;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .spreadsheet-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
       background: white;
     }
 
-    .overview-table th,
-    .overview-table td {
-      padding: 12px 10px;
+    .spreadsheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+    }
+
+    .spreadsheet-table th,
+    .spreadsheet-table td {
       border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
       white-space: nowrap;
     }
 
-    .overview-table th {
-      background: #f8fafc;
+    .spreadsheet-table th {
       position: sticky;
       top: 0;
       z-index: 1;
+      background: #f8fafc;
     }
 
-    .summary-row {
-      background: #eef6ff;
-      font-weight: 700;
-    }
-
-    .month-row {
-      background: #f9fafb;
-      font-weight: 700;
-    }
-
-    .year-block {
-      margin-bottom: 24px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      overflow: hidden;
-      background: #fff;
-    }
-
-    .year-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 16px;
-      background: linear-gradient(180deg, #f8fafc, #eef4ff);
-      border-bottom: 1px solid var(--line);
-      font-weight: 800;
-    }
-
-    .year-summary-mini {
-      display: flex;
-      gap: 18px;
-      flex-wrap: wrap;
-      font-size: 0.9rem;
+    .spreadsheet-table .calc-cell {
       color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.83rem;
+      background: #fafcff;
+    }
+
+    .spreadsheet-table .total-row {
+      background: #eef6ff;
+      font-weight: 800;
     }
 
     .backup-card {
@@ -499,10 +455,6 @@
     @media (max-width: 860px) {
       .summary { grid-template-columns: 1fr; }
       .content { grid-template-columns: 1fr; }
-      .right-panel-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
       .overview-btn {
         width: 100%;
       }
@@ -606,47 +558,21 @@
         </section>
 
         <section class="panel">
-          <div class="right-panel-header">
-            <div class="tab-header">
-              <button type="button" class="tab-btn active" data-tab="transactions">거래 내역</button>
-              <button type="button" class="tab-btn" data-tab="summary">정리 표</button>
-            </div>
-            <button type="button" class="overview-btn" id="overviewBtn">전체 표 보기</button>
-          </div>
-
-          <div id="transactionsPanel" class="tab-panel active">
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>날짜</th>
-                    <th>유형</th>
-                    <th>분류</th>
-                    <th>메모</th>
-                    <th>금액</th>
-                    <th>삭제</th>
-                  </tr>
-                </thead>
-                <tbody id="ledgerTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <div id="summaryPanel" class="tab-panel">
-            <p class="summary-subtitle">상세 항목</p>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>유형</th>
-                    <th>분류</th>
-                    <th>건수</th>
-                    <th>총합</th>
-                  </tr>
-                </thead>
-                <tbody id="summaryTableBody"></tbody>
-              </table>
-            </div>
+          <h2>거래 내역</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>날짜</th>
+                  <th>유형</th>
+                  <th>분류</th>
+                  <th>메모</th>
+                  <th>금액</th>
+                  <th>삭제</th>
+                </tr>
+              </thead>
+              <tbody id="ledgerTableBody"></tbody>
+            </table>
           </div>
         </section>
       </div>
@@ -691,10 +617,7 @@
     const STORAGE_KEY = "ledger_entries_v1";
     const form = document.getElementById("ledgerForm");
     const typeButtons = document.querySelectorAll(".type-btn");
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const overviewBtn = document.getElementById("overviewBtn");
     const tableBody = document.getElementById("ledgerTableBody");
-    const summaryTableBody = document.getElementById("summaryTableBody");
     const dateInput = document.getElementById("date");
     const categoryInput = document.getElementById("category");
     const amountInput = document.getElementById("amount");
@@ -764,12 +687,25 @@
         style: "currency",
         currency: "KRW",
         maximumFractionDigits: 0
-      }).format(value);
+      }).format(Number(value) || 0);
     }
 
     function getEntries() {
       return loadEntries().sort((a, b) => new Date(b.date) - new Date(a.date));
     }
+
+    function updateTypeButtons() {
+      typeButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.type === selectedType);
+      });
+    }
+
+    typeButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        selectedType = button.dataset.type;
+        updateTypeButtons();
+      });
+    });
 
     function renderSummary(entries) {
       const income = entries
@@ -785,54 +721,6 @@
       document.getElementById("incomeTotal").textContent = formatCurrency(income);
       document.getElementById("expenseTotal").textContent = formatCurrency(expense);
       document.getElementById("balanceTotal").textContent = formatCurrency(balance);
-    }
-
-    function renderSummaryTable(entries) {
-      const summaryMap = new Map();
-
-      entries.forEach(entry => {
-        const key = `${entry.type}:${entry.category}`;
-        if (!summaryMap.has(key)) {
-          summaryMap.set(key, {
-            type: entry.type,
-            category: entry.category,
-            total: 0,
-            count: 0
-          });
-        }
-
-        const summary = summaryMap.get(key);
-        summary.total += Number(entry.amount);
-        summary.count += 1;
-      });
-
-      const rows = [...summaryMap.values()].sort((a, b) => {
-        if (a.type !== b.type) return a.type === "income" ? -1 : 1;
-        return a.category.localeCompare(b.category, "ko");
-      });
-
-      summaryTableBody.innerHTML = "";
-
-      if (!rows.length) {
-        summaryTableBody.innerHTML = `
-          <tr>
-            <td colspan="4" class="empty">아직 정리된 표가 없습니다.</td>
-          </tr>
-        `;
-        return;
-      }
-
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
-        const typeClass = row.type === "income" ? "income" : "expense";
-        tr.innerHTML = `
-          <td><span class="tag ${typeClass}">${row.type === "income" ? "수입" : "지출"}</span></td>
-          <td>${row.category}</td>
-          <td>${row.count}건</td>
-          <td class="amount ${typeClass}">${row.type === "income" ? "+" : "-"}${formatCurrency(row.total)}</td>
-        `;
-        summaryTableBody.appendChild(tr);
-      });
     }
 
     function renderTable() {
@@ -872,7 +760,6 @@
           const filtered = entries.filter(item => item.id !== targetId);
           saveEntries(filtered);
           render();
-          renderOverview();
         });
       });
     }
@@ -907,250 +794,161 @@
         return;
       }
 
-      const grouped = new Map();
-      const visibleEntries = filteredEntries.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+      const income = filteredEntries
+        .filter(item => item.type === "income")
+        .reduce((sum, item) => sum + Number(item.amount), 0);
 
-      visibleEntries.forEach(entry => {
-        const dateObj = new Date(entry.date + "T00:00:00");
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const monthLabel = `${year}년 ${Number(month)}월`;
+      const expense = filteredEntries
+        .filter(item => item.type === "expense")
+        .reduce((sum, item) => sum + Number(item.amount), 0);
 
-        if (!grouped.has(year)) {
-          grouped.set(year, {
-            year,
-            totalIncome: 0,
-            totalExpense: 0,
-            months: new Map()
-          });
+      const balance = income - expense;
+      const average = filteredEntries.length ? (income + expense) / filteredEntries.length : 0;
+
+      const formulaCards = [
+        {
+          label: "총 수입",
+          expression: '=SUMIF(유형, "수입", 금액)',
+          result: formatCurrency(income)
+        },
+        {
+          label: "총 지출",
+          expression: '=SUMIF(유형, "지출", 금액)',
+          result: formatCurrency(expense)
+        },
+        {
+          label: "잔액",
+          expression: '=총수입 - 총지출',
+          result: formatCurrency(balance)
+        },
+        {
+          label: "평균 거래액",
+          expression: '=AVERAGE(금액)',
+          result: formatCurrency(average)
         }
+      ];
 
-        const yearBucket = grouped.get(year);
-        if (entry.type === "income") yearBucket.totalIncome += Number(entry.amount);
-        else yearBucket.totalExpense += Number(entry.amount);
-
-        if (!yearBucket.months.has(month)) {
-          yearBucket.months.set(month, {
-            month,
-            monthLabel,
-            income: 0,
-            expense: 0,
-            records: []
-          });
-        }
-
-        const monthBucket = yearBucket.months.get(month);
-        if (entry.type === "income") monthBucket.income += Number(entry.amount);
-        else monthBucket.expense += Number(entry.amount);
-        monthBucket.records.push(entry);
-      });
-
-      const years = [...grouped.values()].sort((a, b) => b.year - a.year);
-
-      if (!years.length) {
-        overviewContent.innerHTML = '<div class="empty">선택한 연/월에 해당하는 데이터가 없습니다.</div>';
-        return;
-      }
-
-      const summaryHtml = years.map(yearBucket => {
-        const months = [...yearBucket.months.values()].sort((a, b) => Number(b.month) - Number(a.month));
-
-        const monthRows = months.map(monthBucket => {
-          const rows = monthBucket.records
-            .slice()
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map(entry => `
+      const rowsHtml = filteredEntries.length
+        ? filteredEntries.map(entry => {
+            const typeClass = entry.type === "income" ? "income" : "expense";
+            return `
               <tr>
                 <td>${entry.date}</td>
-                <td><span class="tag ${entry.type === "income" ? "income" : "expense"}">${entry.type === "income" ? "수입" : "지출"}</span></td>
+                <td><span class="tag ${typeClass}">${entry.type === "income" ? "수입" : "지출"}</span></td>
                 <td>${entry.category}</td>
                 <td>${entry.memo || "-"}</td>
-                <td class="amount ${entry.type === "income" ? "income" : "expense"}">${entry.type === "income" ? "+" : "-"}${formatCurrency(Number(entry.amount))}</td>
+                <td class="amount ${typeClass}">${formatCurrency(Number(entry.amount))}</td>
+                <td class="calc-cell">${entry.type === "income" ? "=계산(수입)" : "=계산(지출)"}</td>
+                <td class="amount ${typeClass}">${entry.type === "income" ? "+" : "-"}${formatCurrency(Number(entry.amount))}</td>
               </tr>
-            `).join("");
+            `;
+          }).join("")
+        : `<tr><td colspan="7" class="empty">선택한 연/월에 해당하는 데이터가 없습니다.</td></tr>`;
 
-          const monthTotal = monthBucket.income - monthBucket.expense;
-
-          return `
-            <tr class="month-row">
-              <td colspan="5">${monthBucket.monthLabel} 합계</td>
-            </tr>
-            <tr class="summary-row">
-              <td>요약</td>
-              <td>수입</td>
-              <td>${formatCurrency(monthBucket.income)}</td>
-              <td>지출</td>
-              <td>${formatCurrency(monthBucket.expense)}</td>
-            </tr>
-            <tr class="summary-row">
-              <td colspan="3">월 잔액</td>
-              <td colspan="2">${formatCurrency(monthTotal)}</td>
-            </tr>
-            ${rows}
-          `;
-        }).join("");
-
-        const yearTotal = yearBucket.totalIncome - yearBucket.totalExpense;
-
-        return `
-          <div class="year-block">
-            <div class="year-header">
-              <span>${yearBucket.year}년</span>
-              <div class="year-summary-mini">
-                <span>수입: ${formatCurrency(yearBucket.totalIncome)}</span>
-                <span>지출: ${formatCurrency(yearBucket.totalExpense)}</span>
-                <span>잔액: ${formatCurrency(yearTotal)}</span>
-              </div>
+      overviewContent.innerHTML = `
+        <div class="formula-grid">
+          ${formulaCards.map(card => `
+            <div class="formula-box">
+              <span class="formula-label">${card.label}</span>
+              <span class="formula-expression">${card.expression}</span>
+              <span class="formula-result">${card.result}</span>
             </div>
-            <div class="overview-table-wrap">
-              <table class="overview-table">
-                <thead>
-                  <tr>
-                    <th>날짜</th>
-                    <th>유형</th>
-                    <th>분류</th>
-                    <th>메모</th>
-                    <th>금액</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="summary-row">
-                    <td colspan="5">${yearBucket.year}년 전체 합계</td>
-                  </tr>
-                  <tr class="summary-row">
-                    <td>수입</td>
-                    <td>${formatCurrency(yearBucket.totalIncome)}</td>
-                    <td>지출</td>
-                    <td>${formatCurrency(yearBucket.totalExpense)}</td>
-                    <td>잔액 ${formatCurrency(yearTotal)}</td>
-                  </tr>
-                  ${monthRows}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      }).join("");
+          `).join("")}
+        </div>
 
-      overviewContent.innerHTML = summaryHtml;
+        <div class="spreadsheet-table-wrap">
+          <table class="spreadsheet-table">
+            <thead>
+              <tr>
+                <th>날짜</th>
+                <th>유형</th>
+                <th>분류</th>
+                <th>메모</th>
+                <th>금액</th>
+                <th>수식</th>
+                <th>결과</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+              <tr class="total-row">
+                <td colspan="4">합계</td>
+                <td>${formatCurrency(income + expense)}</td>
+                <td class="calc-cell">=SUM(금액)</td>
+                <td class="amount ${balance >= 0 ? "income" : "expense"}">${formatCurrency(balance)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
     }
 
     function render() {
       const entries = getEntries();
       renderSummary(entries);
-      renderSummaryTable(entries);
       renderTable();
       renderOverview();
     }
 
-    function makeBackupData() {
-      const entries = getEntries();
-      return JSON.stringify({
-        exportedAt: new Date().toISOString(),
-        entries
-      }, null, 2);
-    }
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const date = dateInput.value;
+      const category = categoryInput.value.trim();
+      const amount = Number(amountInput.value);
+      const memo = memoInput.value.trim();
+
+      if (!date || !category || !amount || amount <= 0) {
+        return;
+      }
+
+      const entries = loadEntries();
+      entries.push({
+        id: Date.now(),
+        date,
+        type: selectedType,
+        category,
+        amount,
+        memo
+      });
+
+      saveEntries(entries);
+      form.reset();
+      dateInput.value = new Date().toISOString().slice(0, 10);
+      selectedType = "income";
+      updateTypeButtons();
+      render();
+    });
 
     backupBtn.addEventListener("click", () => {
-      const text = makeBackupData();
-      backupBox.value = text;
-      navigator.clipboard?.writeText(text).catch(() => {});
-      alert("백업 데이터가 생성되었습니다. 복원에 사용할 수 있습니다.");
+      const entries = getEntries();
+      backupBox.value = JSON.stringify(entries, null, 2);
     });
 
     restoreBtn.addEventListener("click", () => {
-      const raw = backupBox.value.trim();
-      if (!raw) {
-        alert("복원할 백업 데이터를 입력해 주세요.");
+      const text = backupBox.value.trim();
+      if (!text) {
+        alert("복원할 백업 데이터를 입력해주세요.");
         return;
       }
 
       try {
-        const parsed = JSON.parse(raw);
-        const entries = Array.isArray(parsed) ? parsed : parsed.entries;
-
-        if (!Array.isArray(entries)) {
-          throw new Error("잘못된 백업 형식입니다.");
+        const parsed = JSON.parse(text);
+        if (!Array.isArray(parsed)) {
+          throw new Error("배열 형식이 아닙니다.");
         }
-
-        const sanitizedEntries = entries.map((entry, index) => ({
-          id: Number(entry.id) || Date.now() + index,
-          date: entry.date,
-          type: entry.type === "expense" ? "expense" : "income",
-          category: entry.category || "기타",
-          amount: Number(entry.amount) || 0,
-          memo: entry.memo || ""
-        })).filter(entry => entry.date && Number(entry.amount) > 0);
-
-        saveEntries(sanitizedEntries);
+        saveEntries(parsed);
         render();
-        alert("백업 복원이 완료되었습니다.");
+        alert("데이터를 복원했습니다.");
       } catch (error) {
-        alert("백업 데이터를 읽을 수 없습니다. 형식을 확인해 주세요.");
+        alert("백업 데이터 형식이 올바르지 않습니다.");
       }
     });
 
     yearFilter.addEventListener("change", renderOverview);
     monthFilter.addEventListener("change", renderOverview);
 
-    overviewBtn.addEventListener("click", () => {
-      showScreen("overview");
-      renderOverview();
-    });
-
-    typeButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        selectedType = button.dataset.type;
-        typeButtons.forEach(btn => btn.classList.toggle("active", btn === button));
-        if (selectedType === "income") {
-          categoryInput.value = "급여";
-        } else {
-          categoryInput.value = "식비";
-        }
-      });
-    });
-
-    tabButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        tabButtons.forEach(btn => btn.classList.toggle("active", btn === button));
-        const target = button.dataset.tab;
-        document.getElementById("transactionsPanel").classList.toggle("active", target === "transactions");
-        document.getElementById("summaryPanel").classList.toggle("active", target === "summary");
-      });
-    });
-
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const date = dateInput.value;
-      const amount = Number(amountInput.value);
-
-      if (!date || !amount || amount < 1) {
-        alert("날짜와 금액을 올바르게 입력해 주세요.");
-        return;
-      }
-
-      const entries = getEntries();
-      const newEntry = {
-        id: Date.now(),
-        date,
-        type: selectedType,
-        category: categoryInput.value,
-        amount,
-        memo: memoInput.value.trim()
-      };
-
-      entries.push(newEntry);
-      saveEntries(entries);
-      form.reset();
-      dateInput.value = new Date().toISOString().slice(0, 10);
-      selectedType = "income";
-      typeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.type === "income"));
-      categoryInput.value = "급여";
-      render();
-      renderOverview();
-    });
-
+    updateTypeButtons();
     render();
   </script>
 </body>
